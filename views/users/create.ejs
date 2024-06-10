@@ -5,23 +5,29 @@
     <div class="container-fluid w-75">
         <h1 class="my-4"> Create An Account </h1>
           <form action="/users/submit" method="post">
+
             <div class="mb-3">
               <label for="InputEmail" class="form-label">Email address</label>
-              <input type="email" class="form-control w-75" id="InputEmail" aria-describedby="emailHelp" required>
+              <input type="email" class="form-control w-75" id="InputEmail" name="email" required>
             </div>
+
             <div class="mb-3">
                 <label for="InputUsername" class="form-label">Username</label>
-                <input type="text" class="form-control w-50" id="InputUsername" required>
+                <input type="text" class="form-control w-50" id="InputUsername" name="username" required>
             </div>
+
             <div class="mb-3">
               <label for="InputPassword" class="form-label">Password</label>
-              <input type="password" class="form-control w-50" id="InputPassword"  required>
+              <input type="password" class="form-control w-50" id="InputPassword" name="password"  required>
             </div>
+
             <div class="mb-3">
                 <label for="ConfirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control w-50" id="ConfirmPassword"  required>
-              </div>
+                <input type="password" class="form-control w-50" id="ConfirmPassword" name="confirmpassword" required>
+            </div>
+
             <button type="submit" class="btn btn-primary">Submit</button>
+
           </form>
           <hr>
           <div><a href="/users/signin" > Sign In </a></div>

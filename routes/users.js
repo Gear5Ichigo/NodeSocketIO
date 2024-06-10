@@ -1,5 +1,5 @@
 const express = require("express");
-const { join } = require("node:path")
+
 const router = express.Router();
 
 const { MongoClient } = require('mongodb');
@@ -21,7 +21,15 @@ router.get('/create', (req, res)=>{
 
 router.post('/submit', (req, res)=>{
 
-    console.log(req.body);
+    console.log( req.body );
+
+    users.insertOne({
+        Email: req.body.email,
+        Username: req.body.username,
+        Password: req.body.password,
+    });
+
+    console.log(users.findOne({username: req.body.username}));
 
     res.redirect('/users');
 })
