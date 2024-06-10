@@ -8,10 +8,16 @@ const server = createServer(app);
 const io = new Server(server);
 const users = require('./routes/users');
 
+app.set('views', [
+  join(__dirname, 'views/users'), 
+  join(__dirname, 'views'),
+  join(__dirname, 'views/partials'),
+]);
+app.set('view engine', 'ejs')
 app.use('/users', users);
 
 app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'views/index.html'))
+  res.render('index');
 });
 
 io.on('connection', (socket) => {

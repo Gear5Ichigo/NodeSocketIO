@@ -8,11 +8,22 @@ const db = mongo_client.db("SocketIO");
 const users = db.collection("Users");
 
 router.get('/', (req, res)=>{
-    res.send("sup")
+    res.redirect('users/signin');
 });
 
-router.get('/new', (req, res)=>{
-    res.render("JOE NIDEM")
+router.get('/signin', (req, res)=>{
+    res.render('sign_in', {name:"JOE"})
 });
+
+router.get('/create', (req, res)=>{
+    res.render('create')
+});
+
+router.post('/submit', (req, res)=>{
+
+    console.log(req.body);
+
+    res.redirect('/users');
+})
 
 module.exports = router;

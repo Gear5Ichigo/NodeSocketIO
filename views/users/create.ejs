@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head') %>
+<body>
+    <div class="container-fluid w-75">
+        <h1 class="my-4"> Create An Account </h1>
+          <form action="/users/submit" method="post">
+            <div class="mb-3">
+              <label for="InputEmail" class="form-label">Email address</label>
+              <input type="email" class="form-control w-75" id="InputEmail" aria-describedby="emailHelp" required>
+            </div>
+            <div class="mb-3">
+                <label for="InputUsername" class="form-label">Username</label>
+                <input type="text" class="form-control w-50" id="InputUsername" required>
+            </div>
+            <div class="mb-3">
+              <label for="InputPassword" class="form-label">Password</label>
+              <input type="password" class="form-control w-50" id="InputPassword"  required>
+            </div>
+            <div class="mb-3">
+                <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control w-50" id="ConfirmPassword"  required>
+              </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          <hr>
+          <div><a href="/users/signin" > Sign In </a></div>
+    </div>
+</body>
+</html>

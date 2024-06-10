@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head') %>
+<body>
+    <div class="container-fluid w-75">
+        <h1 class="my-4"> Sign In </h1>
+          <form>
+            <div class="mb-3">
+              <label for="InputUsername" class="form-label">Username</label>
+              <input type="text" class="form-control w-50" id="InputUsername" required>
+          </div>
+            <div class="mb-3">
+              <label for="InputPassword" class="form-label">Password</label>
+              <input type="password" class="form-control w-50" id="InputPassword" pattern=".{6-20}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          <hr>
+          <div><a href="/users/create" > Create Account </a></div>
+    </div>
+</body>
+</html>
