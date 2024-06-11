@@ -17,13 +17,11 @@ app.set('views', [
 ]);
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: true}))
-app.use(session(
-  {
+app.use(session({
     secret:'tacocat backwards',
     resave: false,
     saveUninitialized: false,
-  }
-));
+}));
 app.use('/users', users);
 
 app.get('/', (req, res) => {
