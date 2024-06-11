@@ -38,10 +38,12 @@
             }
         });
 
-        socket.on('chat message', (msg) => {
+        socket.on('get-session', (s)=>{ socket.emit('get-session', s); console.log(s) });
+
+        socket.on('chat message', (msg, cu) => {
             const messages = document.querySelector('#messages');
             const item = document.createElement('li');
-            item.textContent = msg;
+            item.textContent = cu.username+": "+msg;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });

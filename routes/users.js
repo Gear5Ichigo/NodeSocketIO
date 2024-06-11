@@ -15,21 +15,45 @@ router.get('/signin', (req, res)=>{
     res.render('sign_in', {name:"JOE"})
 });
 
-router.get('/create', (req, res)=>{
-    res.render('create')
+router.post('/enter', async (req, res)=>{
+    
+    const user_result = await users.findOne( {username: req.body.username} );
+
+    if (user_result!=null) {
+        console.log(user_result);
+
+        if (user_result.password===req.body.password) {
+            if (req.session.loggedIn==null) {
+                req.session.name = user_result.username;
+                req.session.loggedIn = true;
+                res.redirect('/dashboard?fromsignin=true');
+            } else res.redirect('/users/signin?in-session-fail=true')
+        } else res.redirect('/users/signin?loginfail=true');
+    } else {
+        res.redirect('/users/signin?namefail=true');
+        console.log('fail ._.XD'+user_result);
+    }
+
 });
 
-router.post('/submit', (req, res)=>{
+router.get('/create', (req, res)=>{
+    res.render('create', {alert: ''})
+});
+
+router.post('/register', async (req, res)=>{
 
     console.log( req.body );
 
-    users.insertOne({
-        Email: req.body.email,
-        Username: req.body.username,
-        Password: req.body.password,
-    });
-
-    console.log(users.findOne({username: req.body.username}));
+    const result = await users.findOne( {username: req.body.username} )
+    if (result==null) {
+        users.insertOne({
+            username: req.body.username,
+            password: req.body.password,
+        });
+    } else {
+        res.redirect('/users/create?registerfail=true');
+        return
+    }
 
     res.redirect('/users');
 })

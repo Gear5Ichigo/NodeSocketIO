@@ -4,21 +4,22 @@
 <body>
     <div class="container-fluid w-75">
         <h1 class="my-4"> Create An Account </h1>
-          <form action="/users/submit" method="post">
-
-            <div class="mb-3">
-              <label for="InputEmail" class="form-label">Email address</label>
-              <input type="email" class="form-control w-75" id="InputEmail" name="email" required>
-            </div>
+        <h3 class="text-danger" style="display: none;">User already exists loser</h3>
+          <form action="/users/register" method="post">
 
             <div class="mb-3">
                 <label for="InputUsername" class="form-label">Username</label>
-                <input type="text" class="form-control w-50" id="InputUsername" name="username" required>
+                <input type="text" class="form-control w-50" id="InputUsername" name="username" autocomplete="off" required>
             </div>
 
             <div class="mb-3">
               <label for="InputPassword" class="form-label">Password</label>
               <input type="password" class="form-control w-50" id="InputPassword" name="password"  required>
+              <ul id="conditions" class="fs-6 font-monospace mt-2" style="display: none;">
+                <li id="condition-1"> Contains at least 3 characters </li>
+                <li id="condition-2">Password can not be "joe" </li>
+                <li id="condition-3"> Meets whats above lol </li>
+              </ul>
             </div>
 
             <div class="mb-3">
@@ -29,8 +30,46 @@
             <button type="submit" class="btn btn-primary">Submit</button>
 
           </form>
+
           <hr>
           <div><a href="/users/signin" > Sign In </a></div>
+
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+          <script>
+
+            const alertHeader = document.querySelector('h3.text-danger');
+            const nameField = document.querySelector('#InputUsername');
+            const passField = document.querySelector('#InputPassword');
+            const confirmPassField = document.querySelector('#ConfirmPassword');
+            const cons = document.querySelector('#conditions');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('registerfail') && urlParams.get('registerfail')==='true') alertHeader.style.display = 'block';
+
+            nameField.addEventListener('change', event=>{
+
+            });
+
+            passField.addEventListener('focus', event=>{ cons.style.display = 'block'; });
+
+            passField.addEventListener('focusout', event=>{ cons.style.display = 'none'; });
+
+            confirmPassField.addEventListener('input', event=>{
+              if (passField.value != '') {
+                if (passField.value == confirmPassField.value) {
+                  confirmPassField.classList.add('is-valid');
+                  confirmPassField.classList.remove('is-invalid');
+                } else if (confirmPassField.value == '') {
+                  confirmPassField.classList.remove('is-valid');
+                  confirmPassField.classList.remove('is-invalid');
+                } else {
+                  confirmPassField.classList.add('is-invalid');
+                  confirmPassField.classList.remove('is-valid');
+                }
+              }
+            });
+
+          </script>
     </div>
 </body>
 </html>
