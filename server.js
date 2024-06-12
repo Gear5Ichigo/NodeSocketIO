@@ -1,13 +1,46 @@
 const express = require('express');
 const session = require('express-session');
+const passport = require('passport');
 const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io')
+const { Strategy } = require('passport-local');
 
 const app = express();
 const server = createServer(app);
-let io = new Server(server);
+const io = new Server(server);
+
 const users = require('./routes/users');
+const rooms = require('./routes/rooms');
+
+const { MongoClient } = require('mongodb');
+const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
+const db = mongo_client.db("SocketIO");
+const user_collection = db.collection("Users");
+
+passport.use(new Strategy(async function verify(username, password, cb){
+  const user_result = await user_collection.findOne( {username: username} );
+
+  if (user_result!=null) {
+    if (user_result.password===password) {
+      cb(null, user_result);
+    } else cb(null, false, {message: 'Incorrect password'});
+  } else {
+    cb(null, false, {message: 'User does not exist'});
+  }
+}));
+
+passport.serializeUser((user, cb)=>{
+  process.nextTick(()=>{
+    cb(null, {username: user.username});
+  })
+});
+
+passport.deserializeUser((user, cb)=>{
+  process.nextTick(()=>{
+    cb(null, user);
+  })
+});
 
 app.set('views', [
   join(__dirname, 'views/users'), 
@@ -16,30 +49,32 @@ app.set('views', [
   join(__dirname, 'views/site'),
 ]);
 app.set('view engine', 'ejs')
+
 app.use(express.urlencoded({extended: true}))
 app.use(session({
-    secret:'tacocat backwards',
-    resave: false,
-    saveUninitialized: false,
+  secret: 'tacocat backwards',
+  resave: false,
+  saveUninitialized: false,
 }));
+app.use(passport.authenticate('session'));
+
 app.use('/users', users);
+app.use('/rooms', rooms);
+
+function loggedIn(req, res, next) { if (req.isAuthenticated()) { next() } else res.redirect('/users/signin'); }
 
 app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/dashboard', (req, res)=>{
-  if (req.session.loggedIn) {
-    console.log(req.session)
-    res.render('dashboard');
-  } else res.redirect('/users/signin');
+app.get('/dashboard', loggedIn, (req, res)=>{
+  console.log(req.session)
+  res.render('dashboard');
 })
 
-app.get('/allchat', (req, res)=>{
-  if (req.session.loggedIn) {
-    io.emit('get-session', req.session);
-    res.render('allchat');
-  } else res.redirect('/users/signin');
+app.get('/allchat', loggedIn, (req, res)=>{
+  io.emit('get-session', req.session);
+  res.render('allchat');
 })
 
 app.get('/users/destroy-session', (req, res)=>{
