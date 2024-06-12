@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('head') %>
+<body style="font-family: comic sans ms;">
+    <div class="container w-75 shadow my-3">
+        <div><a href="/dashboard">Back</a></div>
+        <h1> Profile </h1>
+
+        <form method="post" action="/users/update">
+            <div class="mb-3">
+                <label for="UserColor"> User Color </label>
+                <input type="color" id="UserColor" name="color" value= '<%=use_color%>' >
+            </div>
+    
+            <div class="mb-3">
+                <label> User Icon </label> soon or never: patience is virtue
+            </div>
+
+            <div class="btn">
+                <input type="submit" value="Save">
+            </div>
+        </form>
+
+    </div>
+</body>
+</html>

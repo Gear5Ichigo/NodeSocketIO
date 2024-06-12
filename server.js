@@ -8,12 +8,13 @@ const { Strategy } = require('passport-local');
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {maxHttpBufferSize: 8e8});
 
 const users = require('./routes/users');
 const rooms = require('./routes/rooms');
 
 const { MongoClient } = require('mongodb');
+const { writeFile, writeFileSync } = require('node:fs');
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const user_collection = db.collection("Users");
@@ -32,7 +33,10 @@ passport.use(new Strategy(async function verify(username, password, cb){
 
 passport.serializeUser((user, cb)=>{
   process.nextTick(()=>{
-    cb(null, {username: user.username});
+    cb(null, {
+      username: user.username,
+      color: user.color
+    });
   })
 });
 
@@ -49,14 +53,16 @@ app.set('views', [
   join(__dirname, 'views/site'),
 ]);
 app.set('view engine', 'ejs')
-
-app.use(express.urlencoded({extended: true}))
-app.use(session({
+const sessionOptions = session({
   secret: 'tacocat backwards',
   resave: false,
   saveUninitialized: false,
-}));
+});
+
+app.use(express.urlencoded({extended: true}))
+app.use(sessionOptions);
 app.use(passport.authenticate('session'));
+io.engine.use(sessionOptions)
 
 app.use('/users', users);
 app.use('/rooms', rooms);
@@ -73,30 +79,22 @@ app.get('/dashboard', loggedIn, (req, res)=>{
 })
 
 app.get('/allchat', loggedIn, (req, res)=>{
-  io.emit('get-session', req.session);
   res.render('allchat');
 })
 
-app.get('/users/destroy-session', (req, res)=>{
-  req.session.destroy((err)=>{
-    if (err) {
-      res.send(err);
-    } else res.redirect('/users/signin');
-  })
-});
-
 io.on('connection', (socket) => {
-  let session = null;
+  const req = socket.request
 
   io.emit('user connected')
 
-  socket.on('get-session', (s)=>{
-    console.log("WAAAAAAAAA");
-    session = s;
-  });
-
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg, session);
+  socket.on('chat message', (msg, file, cb) => {
+      if (file.name!=null) {
+        writeFileSync(join(__dirname, 'images/chat/'+file.name), file.data, (err)=>{
+          cb({message: err ? 'failure' : 'success'});
+        });
+      }
+    console.log(file);
+    io.emit('chat message', msg, req.session.passport.user, file.name);
   });
 
   socket.on('disconnect', ()=>{

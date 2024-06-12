@@ -20,7 +20,8 @@
 <body>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+      <input type="file" id="file" />
+      <input id="input" autocomplete="off" /> <button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -29,22 +30,40 @@
 
         var form = document.getElementById('form');
         var input = document.getElementById('input');
+        var file = document.querySelector('#file');
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             if (input.value) {
-                socket.emit('chat message', input.value);
+                let thing = {name: null, data: null}
+                if (file.files.item(0)!=null) {
+                    thing = {name: file.files.item(0).name, data: file.files[0]};
+                }
+                socket.emit('chat message', input.value, thing, (status)=>{console.log(status)});
                 input.value = '';
+                file.files = null;
             }
         });
 
-        socket.on('get-session', (s)=>{ socket.emit('get-session', s); console.log(s) });
+        socket.on('chat message', (msg, user, f) => {
 
-        socket.on('chat message', (msg, cu) => {
             const messages = document.querySelector('#messages');
             const item = document.createElement('li');
-            item.textContent = cu.username+": "+msg;
+            const nametext = document.createElement('b');
+            const content = document.createElement('span');
+            const image = document.createElement('img');
+
+            image.src = '../images/chat/'+f;
+            nametext.style.color = user.color;
+            nametext.textContent = user.username+" : "
+            content.textContent = msg;
+
+            item.appendChild(nametext);
+            if (f!=null) {item.appendChild(image);}
+            item.appendChild(content);
+
             messages.appendChild(item);
+
             window.scrollTo(0, document.body.scrollHeight);
         });
     </script>
