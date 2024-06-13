@@ -47,8 +47,51 @@
             }
         });
 
-        socket.on('chat message', (msg, user, f) => {
+        socket.on('user connected', (user)=>{
+            const messages = document.querySelector('#messages');
+            const item = document.createElement('li');
+            const nametext = document.createElement('b');
+            const content = document.createElement('span');
+            const usertext = document.createElement('b');
 
+            usertext.style.color = user.color;
+            usertext.textContent = user.username;
+            nametext.classList.add('font-monospace');
+            nametext.style.color = '#690900';
+            nametext.textContent = "[SERVER] HAL-9 : "
+            content.textContent = ` has joined.`;
+
+            item.appendChild(nametext);
+            item.appendChild(usertext);
+            item.appendChild(content);
+            messages.appendChild(item);
+
+            window.scrollTo(0, document.body.scrollHeight);
+        })
+
+        socket.on('user left', (user)=>{
+            const messages = document.querySelector('#messages');
+            const item = document.createElement('li');
+            const nametext = document.createElement('b');
+            const content = document.createElement('span');
+            const usertext = document.createElement('b');
+
+            usertext.style.color = user.color;
+            usertext.textContent = user.username;
+            nametext.classList.add('font-monospace');
+            nametext.style.color = '#690900';
+            nametext.textContent = "[SERVER] HAL-9 : "
+            content.textContent = ` has left.`;
+
+            item.appendChild(nametext);
+            item.appendChild(usertext);
+            item.appendChild(content);
+            messages.appendChild(item);
+
+            window.scrollTo(0, document.body.scrollHeight);
+        })
+
+        socket.on('chat message', (msg, user, f) => {
             const messages = document.querySelector('#messages');
             const item = document.createElement('li');
             const nametext = document.createElement('b');

@@ -57,11 +57,31 @@ const sessionOptions = session({
   resave: false,
   saveUninitialized: false,
 });
-
+function onlyForHandshake(middleware) {
+  return (req, res, next) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
 app.use(express.urlencoded({extended: true}))
 app.use(sessionOptions);
 app.use(passport.authenticate('session'));
 io.engine.use(sessionOptions)
+io.engine.use(passport.authenticate('session'))
+io.engine.use(
+  onlyForHandshake((req, res, next) => {
+    if (req.user) {
+      next();
+    } else {
+      res.writeHead(401);
+      res.end();
+    }
+  }),
+);
 
 app.use('/users', users);
 app.use('/rooms', rooms);
@@ -85,7 +105,9 @@ app.get('/allchat', loggedIn, (req, res)=>{
 io.on('connection', (socket) => {
   const req = socket.request
 
-  io.emit('user connected')
+  console.log(req.user.username);
+
+  io.emit('user connected', req.user)
 
   socket.on('chat message', (msg, file, cb) => {
       if (file.name!=null) {
@@ -94,15 +116,16 @@ io.on('connection', (socket) => {
         });
       }
     console.log(file);
-    io.emit('chat message', msg, req.session.passport.user, file.name);
+    io.emit('chat message', msg, req.user, file.name);
   });
 
   socket.on('disconnect', ()=>{
+    io.emit('user left', req.user)
     console.log("disconnected")
   });
   
 });
 
 server.listen(8000, () => {
-  console.log('server running at http://localhost:3000');
+  console.log('server running at http://localhost:8000');
 });
