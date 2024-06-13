@@ -34,7 +34,7 @@ router.get('/create', (req, res)=>{
 });
 
 router.post('/update', async (req, res)=>{
-    const user = await users.findOne({username: req.session.passport.user.username});
+    const user = await users.findOne({username: req.user.username});
     if (user!=null) {
         users.updateOne({
             username: user.username,
