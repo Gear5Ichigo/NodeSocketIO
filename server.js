@@ -5,6 +5,7 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io')
 const { Strategy } = require('passport-local');
+const { writeFile, writeFileSync } = require('node:fs');
 
 const app = express();
 const server = createServer(app);
@@ -14,14 +15,12 @@ const users = require('./routes/users');
 const rooms = require('./routes/rooms');
 
 const { MongoClient } = require('mongodb');
-const { writeFile, writeFileSync } = require('node:fs');
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const user_collection = db.collection("Users");
 
 passport.use(new Strategy(async function verify(username, password, cb){
   const user_result = await user_collection.findOne( {username: username} );
-
   if (user_result!=null) {
     if (user_result.password===password) {
       cb(null, user_result);
@@ -66,6 +65,7 @@ io.engine.use(sessionOptions)
 
 app.use('/users', users);
 app.use('/rooms', rooms);
+app.use('/images', express.static(join(__dirname, '/images')))
 
 function loggedIn(req, res, next) { if (req.isAuthenticated()) { next() } else res.redirect('/users/signin'); }
 
@@ -103,6 +103,6 @@ io.on('connection', (socket) => {
   
 });
 
-server.listen(3000, () => {
+server.listen(8000, () => {
   console.log('server running at http://localhost:3000');
 });
