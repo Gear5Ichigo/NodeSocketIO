@@ -19,6 +19,24 @@
       </style>
 </head>
 <body>
+    <!-- Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="alertModal">Modal title</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <ul id="messages" class="w-100"></ul>
         <form id="form" action="">
@@ -27,28 +45,38 @@
         </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         var socket = io();
 
-        var form = document.getElementById('form');
-        var input = document.getElementById('input');
-        var file = document.querySelector('#file');
+        const form = document.querySelector('#form');
+        const input = document.querySelector('#input');
+        const file = document.querySelector('#file');
+        const messages = document.querySelector('#messages');
+        const modal = new bootstrap.Modal('#alertModal', {})
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (input.value) {
-                let thing = {name: null, data: null}
-                if (file.files.item(0)!=null) {
-                    thing = {name: file.files.item(0).name, data: file.files[0]};
-                }
+            const fileupload = file.files.item(0);
+            let thing = {name: null, data: null, type: ''}
+            if (fileupload!=null) {
+                if (fileupload.size > 10000*100) {
+                    document.querySelector('#alertModal .modal-body').innerHTML = `
+                    <div> File is to large to upload. . . </div>
+                    <div> Max upload: <b>10</b> MB </div>
+                    `
+                    modal.show()
+                    return;
+                } else { thing = {name: fileupload.name, data: file.files[0], type: fileupload.type}; }
+            }
+            if (input.value || fileupload) {
                 socket.emit('chat message', input.value, thing, (status)=>{console.log(status)});
                 input.value = '';
-                file.files = null;
+                file.value = null;
             }
         });
 
         socket.on('user connected', (user)=>{
-            const messages = document.querySelector('#messages');
             const item = document.createElement('li');
             const nametext = document.createElement('b');
             const content = document.createElement('span');
@@ -70,7 +98,6 @@
         })
 
         socket.on('user left', (user)=>{
-            const messages = document.querySelector('#messages');
             const item = document.createElement('li');
             const nametext = document.createElement('b');
             const content = document.createElement('span');
@@ -92,22 +119,31 @@
         })
 
         socket.on('chat message', (msg, user, f) => {
-            const messages = document.querySelector('#messages');
             const item = document.createElement('li');
             const nametext = document.createElement('b');
             const content = document.createElement('span');
-            const imgcont = document.createElement('span');
-            const image = document.createElement('img');
 
-            image.src = '../images/chat/'+f;
-            image.classList.add('img-fluid');
+            const uploadcont = document.createElement('span');
+            const upload = (f.type.includes('image')) ? document.createElement('img') : document.createElement('video');
+
+            if (f.type.includes('image')) {
+                upload.src = '../uploads/chat/'+f.name;
+                upload.classList.add('img-fluid');
+            } else if (f.type.includes('video')) {
+                upload.controls = true;
+                const s = document.createElement('source');
+                s.src = document.createElement('source').src = '../uploads/chat/'+f.name;
+                s.type = f.type;
+                upload.appendChild(s);
+            }
+
             nametext.style.color = user.color;
             nametext.textContent = user.username+" : "
             content.textContent = msg;
 
-            imgcont.appendChild(image)
+            uploadcont.appendChild(upload)
             item.appendChild(nametext);
-            if (f!=null) {item.appendChild(imgcont);}
+            if (f.name!=null) {item.appendChild(uploadcont);}
             item.appendChild(content);
 
             messages.appendChild(item);

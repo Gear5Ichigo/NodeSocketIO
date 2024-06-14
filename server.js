@@ -15,6 +15,7 @@ const users = require('./routes/users');
 const rooms = require('./routes/rooms');
 
 const { MongoClient } = require('mongodb');
+const { type } = require('express/lib/response');
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const user_collection = db.collection("Users");
@@ -85,7 +86,7 @@ io.engine.use(
 
 app.use('/users', users);
 app.use('/rooms', rooms);
-app.use('/images', express.static(join(__dirname, '/images')))
+app.use('/uploads', express.static(join(__dirname, '/uploads')))
 
 function loggedIn(req, res, next) { if (req.isAuthenticated()) { next() } else res.redirect('/users/signin'); }
 
@@ -111,12 +112,12 @@ io.on('connection', (socket) => {
 
   socket.on('chat message', (msg, file, cb) => {
       if (file.name!=null) {
-        writeFileSync(join(__dirname, 'images/chat/'+file.name), file.data, (err)=>{
+        writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
           cb({message: err ? 'failure' : 'success'});
         });
       }
     console.log(file);
-    io.emit('chat message', msg, req.user, file.name);
+    io.emit('chat message', msg, req.user, {name: file.name, type: file.type});
   });
 
   socket.on('disconnect', ()=>{
