@@ -39,9 +39,9 @@
 
     <div class="container-fluid">
         <ul id="messages" class="w-100"></ul>
-        <form id="form" action="">
-        <input type="file" id="file" />
-        <input id="input" autocomplete="off" /> <button>Send</button>
+        <form id="form" action="" class="container-fluid">
+            <input type="file" id="file" class="" />
+            <input id="input" autocomplete="off" class="w-100" /> <button>Send</button>
         </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
@@ -56,14 +56,15 @@
         const modal = new bootstrap.Modal('#alertModal', {})
 
         form.addEventListener('submit', function(e) {
+
             e.preventDefault();
             const fileupload = file.files.item(0);
             let thing = {name: null, data: null, type: ''}
             if (fileupload!=null) {
-                if (fileupload.size > 10000*100) {
+                if (fileupload.size > 500000*100) {
                     document.querySelector('#alertModal .modal-body').innerHTML = `
                     <div> File is to large to upload. . . </div>
-                    <div> Max upload: <b>10</b> MB </div>
+                    <div> Max upload: <b>50</b> MB </div>
                     `
                     modal.show()
                     return;
@@ -126,11 +127,15 @@
             const uploadcont = document.createElement('span');
             const upload = (f.type.includes('image')) ? document.createElement('img') : document.createElement('video');
 
+            item.classList.add("container-fluid");
+
             if (f.type.includes('image')) {
+                upload.style.maxWidth = "100%"; upload.style.maxHeight = "20rem";
                 upload.src = '../uploads/chat/'+f.name;
                 upload.classList.add('img-fluid');
             } else if (f.type.includes('video')) {
                 upload.controls = true;
+                upload.style.maxWidth = "100%"; upload.style.maxHeight = "20rem";
                 const s = document.createElement('source');
                 s.src = document.createElement('source').src = '../uploads/chat/'+f.name;
                 s.type = f.type;
