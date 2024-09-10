@@ -2,6 +2,24 @@
 <html lang="en">
     <%- include('head') %>
 <body style="font-family: comic sans ms;">
+
+    <style>
+        div.col > img:hover {
+            border-width: 1rem;
+            border-color: blueviolet;
+            border-style: solid;
+            border-radius: 100px;
+            transition: 200ms;
+        }
+
+        .thehovered {
+            border-width: 1rem;
+            border-color: blueviolet;
+            border-style: solid;
+            border-radius: 100px;
+        }
+    </style>
+
     <div class="container w-75 shadow my-3">
         <div><a href="/dashboard">Back</a></div>
         <h1> Profile </h1>
@@ -14,6 +32,13 @@
     
             <div class="mb-3">
                 <label> User Icon </label> soon or never: patience is virtue
+                <div class="container-fluid row" id="gallery">
+                    <% gallery.forEach(element => { %>
+                        <div class="col">
+                            <img data-selected="" class="img-fluid" id=<%=element%> style="height: 9rem; width: 9rem;" src=<%= "../../icons/"+element %> />
+                        </div>
+                    <% }); %>
+                </div>
             </div>
 
             <div class="btn">
@@ -22,5 +47,14 @@
         </form>
 
     </div>
+    <script>
+        const gallery = document.querySelectorAll('#gallery > div > img');
+        gallery.forEach(element => {
+            element.addEventListener('click', e => {
+                console.log(element.id);
+                element.classList.add("thehovered");
+            })
+        });
+    </script>
 </body>
 </html>

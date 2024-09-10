@@ -66,8 +66,9 @@
             e.preventDefault();
             const fileupload = file.files.item(0);
             let thing = {name: null, data: null, type: ''}
+            console.log(fileupload);
             if (fileupload!=null) {
-                if (fileupload.size > 500000*100) {
+                if (fileupload.size > 50000*1000) {
                     document.querySelector('#alertModal .modal-body').innerHTML = `
                     <div> File is to large to upload. . . </div>
                     <div> Max upload: <b>50</b> MB </div>
@@ -128,27 +129,46 @@
         socket.on('chat message', (msg, user, f) => {
             const item = document.createElement('li');
             const nametext = document.createElement('b');
-            const usericonContainer = document.createElement('span');
+            const usericonContainer = document.createElement('div');
             const usericon = document.createElement('img');
             const content = document.createElement('span');
 
             const uploadcont = document.createElement('div');
-            const upload = (f.type.includes('image')) ? document.createElement('img') : document.createElement('video');
+            let upload = null;
+            if (f.type.includes('image')) {
+                upload = document.createElement('img')
+            } else if (f.type.includes('video')) {
+                upload = document.createElement('video');
+            } else {
+                upload = document.createElement('a');
+            }
+
+            usericonContainer.appendChild(usericon)
+            usericonContainer.style.height = "2.5rem"
+            usericonContainer.style.width = "2.5rem"
+            usericonContainer.style.marginRight = ".5rem"
             usericon.src = "../icons/basic.webp";
+            usericon.style.height = '100%'
+            usericon.style.width = '100%'
+            usericon.style.borderRadius = '50px'
+            usericon.alt = "pfp"
 
             item.classList.add("container-fluid");
 
             if (f.type.includes('image')) {
-                upload.style.maxWidth = "100%"; upload.style.maxHeight = "18rem";
+                upload.style.maxWidth = "100%"; upload.style.maxHeight = "16rem";
                 upload.src = '../uploads/chat/'+f.name;
                 upload.classList.add('img-fluid');
             } else if (f.type.includes('video')) {
                 upload.controls = true;
-                upload.style.maxWidth = "100%"; upload.style.maxHeight = "18rem";
+                upload.style.maxWidth = "100%"; upload.style.maxHeight = "16rem";
                 const s = document.createElement('source');
                 s.src = document.createElement('source').src = '../uploads/chat/'+f.name;
                 s.type = f.type;
                 upload.appendChild(s);
+            } else {
+                upload.innerText = f.name;
+                upload.href = '../uploads/chat/'+f.name;
             }
 
             nametext.style.color = user.color;
@@ -156,7 +176,7 @@
             content.textContent = msg;
 
             uploadcont.appendChild(upload)
-            item.appendChild(usericon)
+            item.appendChild(usericonContainer)
             item.appendChild(nametext);
             item.appendChild(content);
             if (f.name!=null) {item.appendChild(uploadcont);}

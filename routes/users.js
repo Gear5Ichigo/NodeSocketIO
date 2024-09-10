@@ -2,12 +2,13 @@ const express = require("express");
 const passport = require('passport')
 
 const { MongoClient } = require('mongodb');
-const { redirect } = require("express/lib/response");
-const res = require("express/lib/response");
-const req = require("express/lib/request");
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const users = db.collection("Users");
+
+const { dirname } = require('path');
+const appDir = dirname(require.main.filename);
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -17,7 +18,10 @@ router.get('/', (req, res)=>{
 
 router.get('/profile', (req, res)=>{
     if (req.isAuthenticated()) {
-        res.render('profile', {use_color: req.session.passport.user.color});
+        res.render('profile', {
+            use_color: req.session.passport.user.color,
+            gallery: fs.readdirSync(appDir+"/icons")
+        });
     } else res.redirect('/users/signin');
 })
 
@@ -64,6 +68,7 @@ router.post('/register', async (req, res)=>{
             username: req.body.username,
             password: req.body.password,
             color: '#000000',
+            profile_picture: '../icons/basic.webp'
         });
     } else {
         res.redirect('/users/create?registerfail=true');

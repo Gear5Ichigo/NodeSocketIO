@@ -87,6 +87,7 @@ io.engine.use(
 app.use('/users', users);
 app.use('/rooms', rooms);
 app.use('/uploads', express.static(join(__dirname, '/uploads')))
+app.use('/icons', express.static(join(__dirname, '/icons')))
 
 function loggedIn(req, res, next) { if (req.isAuthenticated()) { next() } else res.redirect('/users/signin'); }
 
