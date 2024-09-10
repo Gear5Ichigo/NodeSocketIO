@@ -4,6 +4,7 @@ const passport = require('passport')
 const { MongoClient } = require('mongodb');
 const { redirect } = require("express/lib/response");
 const res = require("express/lib/response");
+const req = require("express/lib/request");
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const users = db.collection("Users");
@@ -26,7 +27,7 @@ router.get('/signin', (req, res)=>{
 
 router.post('/enter', passport.authenticate('local', {
     successRedirect: '/dashboard',
-    failureRedirect: '/users/signin',
+    failureRedirect: '/users/signin?loginfail=true',
 }));
 
 router.get('/create', (req, res)=>{
@@ -49,7 +50,7 @@ router.post('/logout', (req, res)=>{
     req.logout((err)=>{
         if (err) {
             res.send(err);
-        } else redirect('/users/signin');
+        } else res.redirect('/users/signin');
     })
 })
 

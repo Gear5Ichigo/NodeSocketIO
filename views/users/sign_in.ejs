@@ -23,9 +23,9 @@
 
       const alertHeader = document.querySelector('h3.text-danger');
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('loginfail') && urlParams.get('loginfail')==='true') {alertHeader.style.display = 'block'; alertHeader.textContent = 'Incorrect Password';}
+      if (urlParams.has('loginfail') && urlParams.get('loginfail')==='true') {alertHeader.style.display = 'block'; alertHeader.textContent = 'Incorrect Username or Password';}
       if (urlParams.has('namefail') && urlParams.get('namefail')==='true') {alertHeader.style.display = 'block'; alertHeader.textContent = 'User does not exist';}
-      if (urlParams.has('in-session-fail') && urlParams.get('in-session-fail')==='true') {alertHeader.style.display = 'block'; alertHeader.textContent = 'In session! who could it be now? 🎶';}
+      if (urlParams.has('in-session-fail') && urlParams.get('in-session-fail')==='true') {alertHeader.style.display = 'block'; alertHeader.textContent = 'User already in session';}
 
     </script>
 </body>
