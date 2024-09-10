@@ -32,6 +32,7 @@
     
             <div class="mb-3">
                 <label> User Icon </label> soon or never: patience is virtue
+                <input type="hidden" value=<%=profile_pciture%>/>
                 <div class="container-fluid row" id="gallery">
                     <% gallery.forEach(element => { %>
                         <div class="col">
@@ -51,9 +52,10 @@
         const gallery = document.querySelectorAll('#gallery > div > img');
         gallery.forEach(element => {
             element.addEventListener('click', e => {
-                console.log(element.id);
+                gallery.forEach(em=>{ if (em.dataset.selected == "true") {em.dataset.selected="false"; em.classList.remove("thehovered");} });
                 element.classList.add("thehovered");
-            })
+                element.dataset.selected = true
+            });
         });
     </script>
 </body>

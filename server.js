@@ -35,7 +35,8 @@ passport.serializeUser((user, cb)=>{
   process.nextTick(()=>{
     cb(null, {
       username: user.username,
-      color: user.color
+      pfp: user.pfp,
+      color: user.color,
     });
   })
 });

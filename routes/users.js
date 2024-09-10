@@ -20,6 +20,7 @@ router.get('/profile', (req, res)=>{
     if (req.isAuthenticated()) {
         res.render('profile', {
             use_color: req.session.passport.user.color,
+            pfp: req.session.passport.user.pfp,
             gallery: fs.readdirSync(appDir+"/icons")
         });
     } else res.redirect('/users/signin');
@@ -44,7 +45,7 @@ router.post('/update', async (req, res)=>{
         users.updateOne({
             username: user.username,
             password: user.password,
-        }, {$set: {color: req.body.color}});
+        }, {$set: {color: req.body.color, profile_picture: req.body.pfp}});
         req.session.passport.user.color = req.body.color
         res.redirect('/users/profile');
     } else res.send('Error');
