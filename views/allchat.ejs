@@ -43,16 +43,19 @@
         </div>
     </div>
 
-    <div class="container-fluid row">
-        <ul id="messages" class="w-100 col"></ul>
-        <div class="col position-sticky">
-            users
+        <div class="container-fluid row" style="bottom: 0;">
+            <ul id="messages" class="w-100"></ul>
+            <div class="position-fixed">
+                <div>
+                    Is texting
+                </div>
+                <form id="form" action="" class="container-fluid">
+                    <input type="file" id="file" class="" />
+                    <input id="input" autocomplete="off" class="w-100" /> <button>Send</button>
+                </form>
+            </div>
         </div>
-        <form id="form" action="" class="container-fluid">
-            <input type="file" id="file" class="" />
-            <input id="input" autocomplete="off" class="w-100" /> <button>Send</button>
-        </form>
-    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
