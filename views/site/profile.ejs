@@ -4,7 +4,7 @@
 <body style="font-family: comic sans ms;">
 
     <style>
-        div.col > img:hover {
+        div.col-3 > img:hover {
             border-width: 1rem;
             border-color: blueviolet;
             border-style: solid;
@@ -32,10 +32,10 @@
     
             <div class="mb-3">
                 <label> User Icon </label> soon or never: patience is virtue
-                <input type="hidden" value=<%=profile_pciture%>/>
+                <input type="hidden" value=<%=pfp%> name="pfp"/>
                 <div class="container-fluid row" id="gallery">
                     <% gallery.forEach(element => { %>
-                        <div class="col">
+                        <div class="col-3">
                             <img data-selected="" class="img-fluid" id=<%=element%> style="height: 9rem; width: 9rem;" src=<%= "../../icons/"+element %> />
                         </div>
                     <% }); %>
@@ -50,11 +50,17 @@
     </div>
     <script>
         const gallery = document.querySelectorAll('#gallery > div > img');
+        const hidval = document.querySelector('input[name="pfp"]');
         gallery.forEach(element => {
+            if (hidval.value == element.id) {
+                element.dataset.selected = true;
+                element.classList.add("thehovered");
+            }
             element.addEventListener('click', e => {
                 gallery.forEach(em=>{ if (em.dataset.selected == "true") {em.dataset.selected="false"; em.classList.remove("thehovered");} });
+                hidval.value = element.id;
                 element.classList.add("thehovered");
-                element.dataset.selected = true
+                element.dataset.selected = true;
             });
         });
     </script>

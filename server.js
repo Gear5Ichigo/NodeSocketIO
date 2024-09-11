@@ -15,7 +15,6 @@ const users = require('./routes/users');
 const rooms = require('./routes/rooms');
 
 const { MongoClient } = require('mongodb');
-const { type } = require('express/lib/response');
 const mongo_client = new MongoClient("mongodb+srv://nenreh:mongoneh@schoolstuff.gjla1uc.mongodb.net/?retryWrites=true&w=majority&appName=SchoolStuff");
 const db = mongo_client.db("SocketIO");
 const user_collection = db.collection("Users");
@@ -35,7 +34,7 @@ passport.serializeUser((user, cb)=>{
   process.nextTick(()=>{
     cb(null, {
       username: user.username,
-      pfp: user.pfp,
+      pfp: user.profile_picture,
       color: user.color,
     });
   })

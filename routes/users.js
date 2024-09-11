@@ -46,7 +46,9 @@ router.post('/update', async (req, res)=>{
             username: user.username,
             password: user.password,
         }, {$set: {color: req.body.color, profile_picture: req.body.pfp}});
-        req.session.passport.user.color = req.body.color
+        req.session.passport.user.color = req.body.color;
+        req.session.passport.user.pfp = req.body.pfp;
+        console.log(req.body.pfp);
         res.redirect('/users/profile');
     } else res.send('Error');
 });
@@ -69,7 +71,7 @@ router.post('/register', async (req, res)=>{
             username: req.body.username,
             password: req.body.password,
             color: '#000000',
-            profile_picture: '../icons/basic.webp'
+            profile_picture: 'basic.webp'
         });
     } else {
         res.redirect('/users/create?registerfail=true');
