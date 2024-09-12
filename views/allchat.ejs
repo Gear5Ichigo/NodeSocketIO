@@ -9,7 +9,7 @@
 
         .sidebar {
             position: fixed; top: 0; right: 0;
-            width: 18vw; height: 100%;
+            width: 18%; height: 100%;
             background-color: #333;
         }
 
@@ -55,15 +55,15 @@
         </div>
     </div>
 
-    <div class="" style="width: 82vw" id="mainContainer">
+    <div class="" style="width: 82%" id="mainContainer">
         <ul id="messages" class="w-100"></ul>
-        <div class="position-fixed" style="bottom: 0; left: 0; right: 0; width: 82vw;" id="messagebar">
-            <div>
+        <div class="position-fixed" style="bottom: 0; left: 0; right: 0; width: 82%;" id="messagebar">
+            <div id="thetypers">
                 
             </div>
             <form id="form" action="" class="container-fluid">
                 <input type="file" id="file" class="" />
-                <input id="input" autocomplete="off" class="w-100" /> <button>Send</button>
+                <input id="input" maxlength="800" autocomplete="off" class="w-100" /> <button>Send</button>
             </form>
         </div>
         <div class="opensidebar text-white">
@@ -92,12 +92,14 @@
         const messages = document.querySelector('#messages');
         const modal = new bootstrap.Modal('#alertModal', {})
 
-        input.addEventListener('input', e => {
-            socket.emit('user typing')
-        })
+        input.addEventListener('focus', e => {
+            socket.emit('user typing');
+        });
+        input.addEventListener('unfocus', e => {
+            socket.emit('user not typing');
+        });
 
         form.addEventListener('submit', function(e) {
-
             e.preventDefault();
             const fileupload = file.files.item(0);
             let thing = {name: null, data: null, type: ''}
@@ -119,7 +121,16 @@
             }
         });
 
-        socket.on('user connected', (user)=>{
+        function updateUserList(user, userlist) {
+            const alluserslist = document.querySelector("#allusers");
+            let addition = ''
+            userlist.forEach(u => {
+                addition+=`<div> <div> <img style="width:3rem;height:3rem;" src="../icons/${u.pfp}"> <b style="color:${u.color};"> ${u.username} </b> </div> </div>`
+            });
+            alluserslist.innerHTML = addition;
+        }
+
+        socket.on('user connected', (user, userlist)=>{
             const item = document.createElement('li');
             const nametext = document.createElement('b');
             const content = document.createElement('span');
@@ -137,25 +148,17 @@
             nametext.textContent = "[SERVER] : "
             content.textContent = ` has joined.`;
 
-            addnametext.style.color = user.color;
-            addnametext.textContent = user.username;
-            usericon.src = '../icons/'+user.pfp;
-            usericon.style.width = '3rem'; usericon.style.height = '3rem';
-
-            userIconContainer.appendChild(usericon);
-            adduser.appendChild(userIconContainer);
-            adduser.appendChild(addnametext);
-            document.querySelector('#allusers').appendChild(adduser);
-
             item.appendChild(nametext);
             item.appendChild(usertext);
             item.appendChild(content);
             messages.appendChild(item);
 
+            updateUserList(user, userlist);
+
             window.scrollTo(0, document.body.scrollHeight);
         })
 
-        socket.on('user left', (user)=>{
+        socket.on('user left', (user, userlist)=>{
             const item = document.createElement('li');
             const nametext = document.createElement('b');
             const content = document.createElement('span');
@@ -173,8 +176,26 @@
             item.appendChild(content);
             messages.appendChild(item);
 
+            updateUserList(user, userlist);
+
             window.scrollTo(0, document.body.scrollHeight);
         })
+
+        socket.on('user typing', (all) => {
+            let addition = ''
+            all.forEach(u => {
+                addition+=u.username+" "
+            });
+            document.querySelector("#thetypers").innerText = addition+"is typing . . .";
+        });
+
+        socket.on('user not typing', (all) => {
+            let addition = ''
+            all.forEach(u => {
+                addition+=u.username+" "
+            });
+            document.querySelector("#thetypers").innerText = addition+"is typing . . .";
+        });
 
         socket.on('chat message', (msg, user, f) => {
             const item = document.createElement('li');

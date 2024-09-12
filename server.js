@@ -105,12 +105,16 @@ app.get('/allchat', loggedIn, (req, res)=>{
   res.render('allchat');
 })
 
+let allusers_allchat = []
+let userstyping_allchat = []
+
 io.on('connection', (socket) => {
   const req = socket.request
 
   console.log(req.user.username);
 
-  io.emit('user connected', req.user)
+  allusers_allchat.push(req.user);
+  io.emit('user connected', req.user, allusers_allchat);
 
   socket.on('chat message', (msg, file, cb) => {
       if (file.name!=null) {
@@ -122,9 +126,20 @@ io.on('connection', (socket) => {
     io.emit('chat message', msg, req.user, {name: file.name, type: file.type});
   });
 
+  socket.on('user typing', () => {
+    userstyping_allchat.push(req.user);
+    socket.broadcast.emit('user typing', userstyping_allchat);
+  });
+
+  socket.on('user not typing', () => {
+    userstyping_allchat.splice(userstyping_allchat.indexOf(req.user), 1);
+    socket.broadcast('user not typing', userstyping_allchat)
+  })
+
   socket.on('disconnect', ()=>{
-    io.emit('user left', req.user)
-    console.log("disconnected")
+    allusers_allchat.splice(allusers_allchat.indexOf(req.user), 1);
+    io.emit('user left', req.user, allusers_allchat);
+    console.log("disconnected");
   });
   
 });
