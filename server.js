@@ -86,6 +86,7 @@ io.engine.use(
 
 app.use('/users', users);
 app.use('/rooms', rooms);
+app.use('/assets', express.static(join(__dirname, '/assets')))
 app.use('/uploads', express.static(join(__dirname, '/uploads')))
 app.use('/icons', express.static(join(__dirname, '/icons')))
 
