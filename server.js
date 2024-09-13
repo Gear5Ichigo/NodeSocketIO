@@ -111,10 +111,12 @@ let userstyping_allchat = []
 io.on('connection', (socket) => {
   const req = socket.request
 
-  console.log(req.user.username);
+  console.log(req.user.username, socket.id);
 
+  req.user.socketId = socket.id;
   allusers_allchat.push(req.user);
   io.emit('user connected', req.user, allusers_allchat);
+  io.to(req.user.socketId).emit('client connect', req.user);
 
   socket.on('chat message', (msg, file, cb) => {
     if (file.name!=null) {
