@@ -7,6 +7,8 @@
     <title>Socket IO</title>
     <style>
 
+        .usericon-container { width: 2.5rem; height: 2.5rem; }
+
         .sidebar {
             position: fixed; top: 0; right: 0;
             width: 18%; height: 100%;
@@ -63,7 +65,7 @@
             </div>
             <form id="form" action="" class="container-fluid">
                 <input type="file" id="file" class="" />
-                <input id="input" maxlength="800" autocomplete="off" class="w-100" /> <button>Send</button>
+                <input id="input" maxlength="500" autocomplete="off" class="w-100" /> <button>Send</button>
             </form>
         </div>
         <div class="opensidebar text-white">
@@ -91,16 +93,22 @@
         const file = document.querySelector('#file');
         const messages = document.querySelector('#messages');
         const modal = new bootstrap.Modal('#alertModal', {})
+        const typingUsers = document.querySelector("#thetypers");
 
         input.addEventListener('focus', e => {
-            socket.emit('user typing');
+            if (input.value.length > 0) socket.emit('user typing');
         });
-        input.addEventListener('unfocus', e => {
-            socket.emit('user not typing');
+        // input.addEventListener('focusout', e => { socket.emit('user not typing'); });
+        input.addEventListener('input', e => {
+            if (input.value.length < 500) {
+                if (input.value !== "") {
+                    socket.emit('user typing');
+                } else socket.emit('user not typing');
+            }
         });
 
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
+            e.preventDefault(); socket.emit('user not typing');
             const fileupload = file.files.item(0);
             let thing = {name: null, data: null, type: ''}
             console.log(fileupload);
@@ -181,24 +189,24 @@
             window.scrollTo(0, document.body.scrollHeight);
         })
 
-        socket.on('user typing', (all) => {
-            let addition = ''
-            all.forEach(u => {
-                addition+=u.username+" "
-            });
-            document.querySelector("#thetypers").innerText = addition+"is typing . . .";
+        socket.on('user typing', (all, user) => {
+            if (all.length < 7) {
+                let addition = ''
+                all.forEach(u => {
+                    console.log(u, user)
+                    let endstr = ', ';
+                    if (all.indexOf(u)==all.length-1) endstr=' ';
+                    if (all.indexOf(u)==all.length-2) endstr=', and '
+                    addition+=u.username+endstr;
+                });
+                typingUsers.innerText = addition+"is typing . . .";
+            } else typingUsers.innerText = "Several people are typing . . .";
+            if (all.length > 0) { typingUsers.style.display = "block"; } else { typingUsers.style.display = "none"; }
         });
 
-        socket.on('user not typing', (all) => {
-            let addition = ''
-            all.forEach(u => {
-                addition+=u.username+" "
-            });
-            document.querySelector("#thetypers").innerText = addition+"is typing . . .";
-        });
-
-        socket.on('chat message', (msg, user, f) => {
+        socket.on('chat message', (msg, user, atUser, f) => {
             const item = document.createElement('li');
+            const container = document.createElement('div');
             const nametext = document.createElement('b');
             const usericonContainer = document.createElement('div');
             const usericon = document.createElement('img');
@@ -214,6 +222,8 @@
                 upload = document.createElement('a');
             }
 
+            container.style.margin = 0;
+            container.style.padding = 0;
             usericonContainer.appendChild(usericon)
             usericonContainer.style.height = "2.5rem"
             usericonContainer.style.width = "2.5rem"
@@ -246,12 +256,18 @@
             nametext.textContent = user.username+" : "
             content.textContent = msg;
 
-            uploadcont.appendChild(upload)
-            item.appendChild(usericonContainer)
-            item.appendChild(nametext);
-            item.appendChild(content);
-            if (f.name!=null) {item.appendChild(uploadcont);}
+            if (atUser.name===user.username) {
+                item.style.borderLeft = "black solid 0.5rem";
+                container.style.backgroundImage = "linear-gradient(90deg, rgba(0,230,255,0.7), rgba(0,230,255,0))";
+            }
 
+            uploadcont.appendChild(upload)
+            container.appendChild(usericonContainer)
+            container.appendChild(nametext);
+            container.appendChild(content);
+            if (f.name!=null) {container.appendChild(uploadcont);}
+
+            item.appendChild(container);
             messages.appendChild(item);
 
             window.scrollTo(0, document.body.scrollHeight);

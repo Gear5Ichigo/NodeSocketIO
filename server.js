@@ -117,28 +117,34 @@ io.on('connection', (socket) => {
   io.emit('user connected', req.user, allusers_allchat);
 
   socket.on('chat message', (msg, file, cb) => {
-      if (file.name!=null) {
-        writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
-          cb({message: err ? 'failure' : 'success'});
-        });
-      }
+    if (file.name!=null) {
+      writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
+        cb({message: err ? 'failure' : 'success'});
+      });
+    }
+    const atSymbol = msg.indexOf('@')
+    const endOfName = msg.indexOf(' ', atSymbol) != -1 ? msg.indexOf(' ', atSymbol) : msg.length;
+    const isUser = allusers_allchat.find(user => user.username == msg.substring(atSymbol+1, endOfName));
+    const targetuser = isUser != undefined ? isUser : {username: '?'};
+    console.log("USER_: "+targetuser.username);
     console.log(file);
-    io.emit('chat message', msg, req.user, {name: file.name, type: file.type});
+    io.emit('chat message', msg, req.user, {name: targetuser.username}, {name: file.name, type: file.type});
   });
 
   socket.on('user typing', () => {
-    userstyping_allchat.push(req.user);
-    socket.broadcast.emit('user typing', userstyping_allchat);
+    if ( userstyping_allchat.indexOf(req.user) == -1 ) userstyping_allchat.push(req.user);
+    io.emit('user typing', userstyping_allchat, req.user);
   });
 
   socket.on('user not typing', () => {
-    userstyping_allchat.splice(userstyping_allchat.indexOf(req.user), 1);
-    socket.broadcast('user not typing', userstyping_allchat)
+    if (userstyping_allchat.includes(req.user)) userstyping_allchat.splice(userstyping_allchat.indexOf(req.user), 1);
+    io.emit('user typing', userstyping_allchat);
   })
 
   socket.on('disconnect', ()=>{
     allusers_allchat.splice(allusers_allchat.indexOf(req.user), 1);
-    io.emit('user left', req.user, allusers_allchat);
+    userstyping_allchat.splice(userstyping_allchat.indexOf(req.user), 1);
+    io.emit('user left', req.user, allusers_allchat); socket.broadcast.emit('user typing', userstyping_allchat);
     console.log("disconnected");
   });
   
