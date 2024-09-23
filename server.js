@@ -5,7 +5,7 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io')
 const { Strategy } = require('passport-local');
-const { writeFile, writeFileSync } = require('node:fs');
+const fs = require('node:fs');
 
 const app = express();
 const server = createServer(app);
@@ -120,9 +120,25 @@ io.on('connection', (socket) => {
 
   socket.on('chat message', (msg, file, cb) => {
     if (file.name!=null) {
-      writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
-        cb({message: err ? 'failure' : 'success'});
-      });
+      file.name = req.user.username+"-"+file.name
+      fs.readdir(join(__dirname, 'uploads/chat/'), (err, files) => {
+        if (err) {
+          console.log(err)
+        } else {
+          let iteration = 1
+          if (files.includes(file.name)) {
+            while (true) {
+              if (!files.includes(file.name+` (${iteration})`)) {
+                file.name=file.name+` (${iteration})`; break;
+              }
+              iteration++;
+            }
+          }
+          fs.writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
+            cb({message: err ? 'failure' : 'success'});
+          });
+        }
+      })
     }
     const atSymbol = msg.indexOf('@')
     const endOfName = msg.indexOf(' ', atSymbol) != -1 ? msg.indexOf(' ', atSymbol) : msg.length;
