@@ -125,15 +125,15 @@ io.on('connection', (socket) => {
         if (err) {
           console.log(err)
         } else {
-          let iteration = 1
-          if (files.includes(file.name)) {
-            while (true) {
-              if (!files.includes(file.name+` (${iteration})`)) {
-                file.name=file.name+` (${iteration})`; break;
-              }
-              iteration++;
-            }
-          }
+          // let iteration = 1
+          // if (files.includes(file.name)) {
+          //     while (true) {
+          //       if (!files.includes(file.name+` (${iteration})`)) {
+          //         file.name=file.name+` (${iteration})`; break;
+          //       }
+          //       iteration++;
+          //     }
+          // }
           fs.writeFileSync(join(__dirname, 'uploads/chat/'+file.name), file.data, (err)=>{
             cb({message: err ? 'failure' : 'success'});
           });
